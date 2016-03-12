@@ -25,7 +25,9 @@ module.exports = function(results, definition) {
 
     // replace all the date strings with real dates
     date_props.map(function(p) {
-      _.set(h._source, p, new Date(_.get(h._source, p)));
+      if (_.get(h._source, p)) {
+        _.set(h._source, p, new Date(_.get(h._source, p)));
+      }
     })
     return h._source;
   })
