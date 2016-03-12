@@ -15,7 +15,6 @@ elasticgoose.connect({
   apiVersion: '2.2'
 });
 
-// a very similar schema definition to mongoose
 var posts = elasticgoose.Model('test_index', 'post_type', {
   user: String,
   message: String,
@@ -25,23 +24,29 @@ var posts = elasticgoose.Model('test_index', 'post_type', {
   }
 })
 
-blips.insert({
-  title: 'testing 123',
-  description: 'wow what a wonderful test'
+posts.insert({
+  user: 'peter',
+  message: 'help me'
 }, function(e, r) {
   console.log(r); // ur doc, with the default value all filled in
 })
 
-// chaining and .exec()
-blips.find({title: 'testing'})
-  .sort('created')
+posts.find({user: 'peter'})
+  .sort('posted')
   .skip(1)
   .limit(5)
-  .select('title created')
+  .select('user posted')
   .exec(function(e, r) {
     console.log(r);
   })
+
 ```
+
+# TODO
+
+* update
+* geolocation
+* analyzers in mapping definition
 
 ### ISC License
 

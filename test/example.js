@@ -15,18 +15,18 @@ var posts = elasticgoose.Model('test_index', 'post_type', {
   }
 })
 
-blips.insert({
-  title: 'testing 123',
-  description: 'wow what a wonderful test'
+posts.insert({
+  user: 'peter',
+  message: 'help me'
 }, function(e, r) {
   console.log(r); // ur doc, with the default value all filled in
 })
 
-blips.find({title: 'testing'})
-  .sort('created')
+posts.find({user: 'peter'})
+  .sort('posted')
   .skip(1)
   .limit(5)
-  .select('title created')
+  .select('user posted')
   .exec(function(e, r) {
     console.log(r);
   })

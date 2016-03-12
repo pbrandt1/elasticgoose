@@ -18,11 +18,18 @@ blips.insert({
   console.log(r); // ur doc, with the default value all filled in
 })
 
+blips.delete({title: 'testing'}, function(e, r) {
+  console.log('err, res from delete:')
+  console.log(e)
+  console.log(r);
+})
+
+
 blips.find({title: 'testing'})
   .sort('created')
   .skip(1)
   .limit(5)
-  .select('title created')
+  .select('_id')
   .exec(function(e, r) {
     if (e) {
       console.error(e);
