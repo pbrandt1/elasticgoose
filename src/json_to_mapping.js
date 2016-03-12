@@ -48,6 +48,11 @@ var json_to_mapping = module.exports = function(json, path) {
     return { type: 'boolean' }
   }
 
+  // Custom mapping
+  if (typeof json === 'string') {
+    return { type: json }
+  }
+
   // Object (unmapped nested property?)
   if (json === Object) {
     throw new Error(not_implemented)
