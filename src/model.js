@@ -66,6 +66,33 @@ module.exports = function(index, type, definition) {
       });
     },
 
+    //
+    // gets all the ids and then deletes them in bulk whoooa
+    //
+    delete: function(q, cb) {
+      cb = cb || function() {};
+      model.find(q).select('_id').size(10000).exec(function(e, r) {
+        if (e || !r || r.length === 0) { return cb(e) }
+
+        var bulk = r.map(function(r) {
+          return { delete: { _index: index, _type: type, _id: r._id }}
+        });
+
+        elasticgoose.worker_queue.push(function(done) {
+          client.bulk({
+            body: bulk
+          }, function(e, r) {
+            done(e);
+            cb(e);
+          })
+        })
+
+      })
+    },
+
+    //
+    // finds them like you want to
+    //
     find: function(q, cb) {
       var ctx = query(q, index, type);
       if (typeof cb === 'function') {
@@ -77,6 +104,8 @@ module.exports = function(index, type, definition) {
 
   // aliases
   model.create = model.insert;
+  model.remove = model.delete;
+  model.query = model.find;
 
   //
   // init
