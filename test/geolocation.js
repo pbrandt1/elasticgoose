@@ -31,11 +31,31 @@ posts.insert({
   console.log(r); // ur doc, with the default value all filled in
 })
 
-posts.find({user: 'peter'})
-  .sort('posted')
-  .skip(1)
-  .limit(5)
-  .select('user posted location')
+// some other random location
+//43.303703, -91.426180
+posts.insert({
+  user: 'matt',
+  message: 'went for a run today',
+  location: {
+    lon: -91.426180,
+    lat: 43.303703
+  }
+}, function(e, r) {
+  console.log(r); // ur doc, with the default value all filled in
+})
+
+posts.findraw({query: {filtered: {filter: {
+  geo_distance: {
+    distance: '1km',
+    location: {
+      lon: -77.010596,
+      lat: 38.896225
+    }
+  }}}}})
+  // .sort('posted')
+  // .skip(1)
+  // .limit(5)
+  // .select('user posted location')
   .exec(function(e, r) {
     console.log(r);
   })
