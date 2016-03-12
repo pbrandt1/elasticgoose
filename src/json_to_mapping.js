@@ -3,7 +3,7 @@ var debug = require('debug')('eg.util');
 var not_implemented = "Cannot handle this use case yet (tweet to @odsdq and we'll figure out how to do this the right way)";
 
 var json_to_mapping = module.exports = function(json, path) {
-  // path is a list of property names in nested order
+  // path is a list of property names in nested order, mostly good for debugging
   path = path || [];
   if (path && path.length > 0) {
     debug('handling ' + path.join('.'))
@@ -72,7 +72,8 @@ var json_to_mapping = module.exports = function(json, path) {
   debug(props);
 
   // { type: String, default: "blah" }
-  if (props.indexOf('type') >= 0) {
+  if (props.indexOf('type') >= 0 && !json.type.type) {
+
     debug('property definition object (like {type: String})')
     var definition = json_to_mapping(json.type, path.concat(['type']));
 
@@ -80,7 +81,7 @@ var json_to_mapping = module.exports = function(json, path) {
       definition.null_value = json.default;
     }
 
-    if (props.indexOf('indexed') >= 0) {
+    if (typeof json.indexed === 'boolean') {
       definition.index = json.indexed ? 'analyzed' : 'not_analyzed';
     }
 
