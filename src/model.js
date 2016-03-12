@@ -96,9 +96,20 @@ module.exports = function(index, type, definition) {
     find: function(q, cb) {
       var ctx = query(q, index, type);
       if (typeof cb === 'function') {
-        return ctx.exec(cb);
+        return ctx._functions.exec(cb);
       }
-      return ctx;
+      return ctx._functions;
+    },
+
+    findraw: function(q, cb) {
+      var ctx = query(q, index, type);
+      ctx.body = q;
+      console.log(q);
+      console.log(ctx);
+      if (typeof cb === 'function') {
+        return ctx.functions.exec(cb);
+      }
+      return ctx._functions;
     }
   };
 

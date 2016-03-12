@@ -25,5 +25,5 @@ module.exports = function(q, index, type) {
     select: select.bind(ctx)
   }
 
-  return ctx._functions;
+  return ctx;
 }
