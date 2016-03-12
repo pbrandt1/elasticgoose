@@ -44,7 +44,7 @@ posts.insert({
   console.log(r); // ur doc, with the default value all filled in
 })
 
-posts.findraw({query: {filtered: {filter: {
+posts.raw({query: {filtered: {filter: {
   geo_distance: {
     distance: '1km',
     location: {

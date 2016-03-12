@@ -9,6 +9,7 @@ module.exports = function(index, type, definition) {
   var elasticgoose = this;
   var client = elasticgoose.client;
   var mapping = json_to_mapping(definition)
+  debug(JSON.stringify(mapping, null, 2))
 
   var model = {
     index: index,
@@ -101,7 +102,7 @@ module.exports = function(index, type, definition) {
       return ctx._functions;
     },
 
-    findraw: function(q, cb) {
+    raw: function(q, cb) {
       var ctx = query(q, index, type);
       ctx.body = q;
       console.log(q);
