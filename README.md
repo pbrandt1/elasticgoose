@@ -42,6 +42,12 @@ posts.find({user: 'peter'})
 
 ```
 
+# Learning about Elasticsearch
+
+* https://www.elastic.co/blog/index-vs-type
+* https://www.elastic.co/blog/changing-mapping-with-zero-downtime
+
+
 # TODO
 
 * update

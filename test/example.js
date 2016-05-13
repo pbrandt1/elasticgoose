@@ -33,7 +33,7 @@ describe('a basic example', function() {
       should.exist(inserted_post.posted);
 
       // then you can also find it in the db
-      var yay_post = yield posts.find({user: 'peter'});
+      var yay_post = yield posts.find({user: 'peter'}).exec();
       should.exist(yay_post);
 
     }).then(done, done);

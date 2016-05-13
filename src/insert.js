@@ -10,7 +10,7 @@ function insert(obj, cb) {
   var ctx = this;
   cb = cb || function() {};
   return new Promise((resolve, reject) => {
-    debug('inserting doc for ' + ctx.index + '.' + ctx.type);
+    debug('inserting doc for ' + ctx.index + '.' + ctx.type + ' on host ' + ctx.db.host);
     debug('specified object was', obj)
     var doc = object_to_document(obj, ctx.definition);
     debug('doc to insert is', doc);

@@ -1,3 +1,5 @@
+var debug = require('debug')('elasticgoose')
+
 var exec = require('./exec')
 var limit = require('./limit')
 var skip = require('./skip')
@@ -6,6 +8,9 @@ var sort = require('./sort')
 
 module.exports = function(q) {
   var ctx = this;
+
+  debug('calling find on ' + ctx.index + '.' + ctx.type + ' on host ' + ctx.db.host + ' with query ', q)
+
   ctx.body = {
     query: {
       match: q
@@ -22,5 +27,5 @@ module.exports = function(q) {
     select: select.bind(ctx)
   }
 
-  return ctx;
+  return ctx._functions;
 }

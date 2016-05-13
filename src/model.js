@@ -4,6 +4,8 @@ var debug = require('debug')('elasticgoose')
 var definition_to_mapping = require('./definition_to_mapping')
 var query = require('./query')
 var insert = require('./insert')
+// var update = require('./update')
+var find = require('./find')
 
 
 // TODO read this stuff
@@ -49,23 +51,12 @@ module.exports = function(index, type, definition) {
     //
     // updates a document and fetches it from the db
     //
-    // update: function(obj, cb) {
-    //   cb = cb || function() {};
-    //   elasticgoose.worker_queue.push(function(done) {
-    //     debug('inserting doc for ' + index + '.' + type);
-    //     debug(obj)
-    //     var obj2 = object_to_document(obj, definition);
-    //     debug(obj2);
-    //     client.update({
-    //       index: index,
-    //       type: type,
-    //       body: obj2
-    //     }, function(e) {
-    //       done(e);
-    //       cb(e);
-    //     })
-    //   });
-    // },
+    // update: update.bind({
+    //   db: db,
+    //   index: index,
+    //   type: type,
+    //   definition: definition
+    // }),
 
     //
     // gets all the ids and then deletes them in bulk whoooa
@@ -94,13 +85,13 @@ module.exports = function(index, type, definition) {
     //
     // finds them like you want to
     //
-    // find: function(q, cb) {
-    //   var ctx = query(q, index, type);
-    //   if (typeof cb === 'function') {
-    //     return ctx._functions.exec(cb);
-    //   }
-    //   return ctx._functions;
-    // },
+    find: find.bind({
+      db: db,
+      index: index,
+      type: type,
+      definition: definition
+    }),
+
     //
     // raw: function(q, cb) {
     //   var ctx = query(q, index, type);
