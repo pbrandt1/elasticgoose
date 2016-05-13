@@ -45,8 +45,9 @@ posts.find({user: 'peter'})
 # TODO
 
 * update
-* geolocation
+* insert array of documents
 * analyzers in mapping definition
+* github.io page
 
 ### ISC License
 

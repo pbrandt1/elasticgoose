@@ -2,7 +2,7 @@ var debug = require('debug')('eg.util');
 
 var not_implemented = "Cannot handle this use case yet (tweet to @odsdq and we'll figure out how to do this the right way)";
 
-var json_to_mapping = module.exports = function(json, path) {
+var definition_to_mapping = module.exports = function(json, path) {
   // path is a list of property names in nested order, mostly good for debugging
   path = path || [];
   if (path && path.length > 0) {
@@ -24,7 +24,7 @@ var json_to_mapping = module.exports = function(json, path) {
       debug(json)
       throw new Error(not_implemented);
     } else if (json.length === 1) {
-      return json_to_mapping(json[0], path)
+      return definition_to_mapping(json[0], path)
     }
   }
 
@@ -75,7 +75,7 @@ var json_to_mapping = module.exports = function(json, path) {
   if (props.indexOf('type') >= 0 && !json.type.type) {
 
     debug('property definition object (like {type: String})')
-    var definition = json_to_mapping(json.type, path.concat(['type']));
+    var definition = definition_to_mapping(json.type, path.concat(['type']));
 
     if (props.indexOf('default') >= 0 && typeof json.default !== 'function') {
       definition.null_value = json.default;
@@ -89,7 +89,7 @@ var json_to_mapping = module.exports = function(json, path) {
   }
 
   var obj = props.reduce(function(o, k) {
-    o[k] = json_to_mapping(json[k], path.concat([k]));
+    o[k] = definition_to_mapping(json[k], path.concat([k]));
     return o;
   }, {})
 
@@ -107,6 +107,6 @@ var json_to_mapping = module.exports = function(json, path) {
 
 
 if (!module.parent) {
-  var m = json_to_mapping(require('./google_calendar_mapping'));
+  var m = definition_to_mapping(require('./google_calendar_mapping'));
   console.log(m)
 }

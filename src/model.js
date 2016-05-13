@@ -1,15 +1,34 @@
-var json_to_mapping = require('./json_to_mapping')
-var object_to_document = require('./object_to_document')
-var results_to_objects = require('./results_to_objects')
+var co = require('co')
+var debug = require('debug')('elasticgoose')
+
+var definition_to_mapping = require('./definition_to_mapping')
 var query = require('./query')
-var debug = require('debug')('eg.model')
+var insert = require('./insert')
+
+
+// TODO read this stuff
+// https://www.elastic.co/blog/changing-mapping-with-zero-downtime
 
 module.exports = function(index, type, definition) {
-  debug('adding model ' + index + '.' + type)
-  var elasticgoose = this;
-  var client = elasticgoose.client;
-  var mapping = json_to_mapping(definition)
-  debug(JSON.stringify(mapping, null, 2))
+  if (typeof index !== 'string') {
+    throw new Error('must specify an index name')
+  }
+
+  if (typeof type !== 'string') {
+    throw new Error('must specify a type name')
+  }
+
+  if (typeof definition !== 'object') {
+    throw new Error('must specify a model definition')
+  }
+
+  var db = this;
+
+  debug('registering model ' + index + '.' + type + ' to client with host ' + db.host);
+  debug('definition is ', definition);
+  var mapping = definition_to_mapping(definition)
+  debug('mapping is ', JSON.stringify(mapping, null, 2))
+
 
   var model = {
     index: index,
@@ -20,98 +39,79 @@ module.exports = function(index, type, definition) {
     //
     // so this inserts the document then gets it back out of the database
     //
-    insert: function(obj, cb) {
-      cb = cb || function() {};
-      elasticgoose.worker_queue.push(function(done) {
-        debug('inserting doc for ' + index + '.' + type);
-        debug(obj)
-        var obj2 = object_to_document(obj, definition);
-        debug(obj2);
-        client.create({
-          index: index,
-          type: type,
-          body: obj2
-        }, function(e, r) {
-          if (e) { return cb(e) || done(e) }
-          client.get({
-            index: index,
-            type: type,
-            id: r._id
-          }, function(e, r) {
-            done(e);
-            r = results_to_objects(r, definition);
-            cb(e, r);
-          })
-        })
-      });
-    },
+    insert: insert.bind({
+      db: db,
+      index: index,
+      type: type,
+      definition: definition
+    }),
 
     //
     // updates a document and fetches it from the db
     //
-    update: function(obj, cb) {
-      cb = cb || function() {};
-      elasticgoose.worker_queue.push(function(done) {
-        debug('inserting doc for ' + index + '.' + type);
-        debug(obj)
-        var obj2 = object_to_document(obj, definition);
-        debug(obj2);
-        client.update({
-          index: index,
-          type: type,
-          body: obj2
-        }, function(e) {
-          done(e);
-          cb(e);
-        })
-      });
-    },
+    // update: function(obj, cb) {
+    //   cb = cb || function() {};
+    //   elasticgoose.worker_queue.push(function(done) {
+    //     debug('inserting doc for ' + index + '.' + type);
+    //     debug(obj)
+    //     var obj2 = object_to_document(obj, definition);
+    //     debug(obj2);
+    //     client.update({
+    //       index: index,
+    //       type: type,
+    //       body: obj2
+    //     }, function(e) {
+    //       done(e);
+    //       cb(e);
+    //     })
+    //   });
+    // },
 
     //
     // gets all the ids and then deletes them in bulk whoooa
     //
-    delete: function(q, cb) {
-      cb = cb || function() {};
-      model.find(q).select('_id').size(10000).exec(function(e, r) {
-        if (e || !r || r.length === 0) { return cb(e) }
-
-        var bulk = r.map(function(r) {
-          return { delete: { _index: index, _type: type, _id: r._id }}
-        });
-
-        elasticgoose.worker_queue.push(function(done) {
-          client.bulk({
-            body: bulk
-          }, function(e, r) {
-            done(e);
-            cb(e);
-          })
-        })
-
-      })
-    },
+    // delete: function(q, cb) {
+    //   cb = cb || function() {};
+    //   model.find(q).select('_id').size(10000).exec(function(e, r) {
+    //     if (e || !r || r.length === 0) { return cb(e) }
+    //
+    //     var bulk = r.map(function(r) {
+    //       return { delete: { _index: index, _type: type, _id: r._id }}
+    //     });
+    //
+    //     elasticgoose.worker_queue.push(function(done) {
+    //       client.bulk({
+    //         body: bulk
+    //       }, function(e, r) {
+    //         done(e);
+    //         cb(e);
+    //       })
+    //     })
+    //
+    //   })
+    // },
 
     //
     // finds them like you want to
     //
-    find: function(q, cb) {
-      var ctx = query(q, index, type);
-      if (typeof cb === 'function') {
-        return ctx._functions.exec(cb);
-      }
-      return ctx._functions;
-    },
-
-    raw: function(q, cb) {
-      var ctx = query(q, index, type);
-      ctx.body = q;
-      console.log(q);
-      console.log(ctx);
-      if (typeof cb === 'function') {
-        return ctx.functions.exec(cb);
-      }
-      return ctx._functions;
-    }
+    // find: function(q, cb) {
+    //   var ctx = query(q, index, type);
+    //   if (typeof cb === 'function') {
+    //     return ctx._functions.exec(cb);
+    //   }
+    //   return ctx._functions;
+    // },
+    //
+    // raw: function(q, cb) {
+    //   var ctx = query(q, index, type);
+    //   ctx.body = q;
+    //   console.log(q);
+    //   console.log(ctx);
+    //   if (typeof cb === 'function') {
+    //     return ctx.functions.exec(cb);
+    //   }
+    //   return ctx._functions;
+    // }
   };
 
   // aliases
@@ -119,54 +119,41 @@ module.exports = function(index, type, definition) {
   model.remove = model.delete;
   model.query = model.find;
 
+
+
+  // add the model to the models hash
+  if (typeof db.models[index] === 'undefined') {
+    db.models[index] = {};
+  }
+  db.models[index][type] = model;
+
   //
   // init
   //
-  elasticgoose.init_queue.push(function(done) {
-    debug('running init for ' + index + '.' + type)
+  return co(function*() {
+    debug('running init for ' + model.index + '.' + model.type)
 
-    // the update_mapping function will fail if you change the schema in bad ways i guess
-    function update_mapping() {
-      debug('updating mapping for ' + index + '.' + type)
-      client.indices.putMapping({
-        index: index,
-        type: type,
-        body: {
-          properties: mapping
-        }
-      }, function(e, r) {
-        if (e) {
-          console.error(e);
-          return done(e)
-        }
-        done();
-      })
+    // make sure index exists first, we'll do the type next
+    try {
+      var index = yield db.client.indices.get({ index: model.index });
+    } catch (e) {
+      debug(e); // not super confident about the elasticsearch api
     }
 
-    // make sure index exists
-    client.indices.get({
-      index: index
-    }, function(e, r) {
-      if (!e) {
-        return update_mapping();
+    if (!index) {
+      index = yield db.client.indices.create({ index: model.index })
+    }
+
+    debug('updating mapping for ' + model.index + '.' + model.type)
+    // TODO detect if we need to run a migration
+    yield db.client.indices.putMapping({
+      index: model.index,
+      type: model.type,
+      body: {
+        properties: model.mapping
       }
-      client.indices.create({
-        index: index
-      }, function(e, r) {
-        if (e) {
-          console.error(e); // note that this will probably always throw an "index already created" error
-          done(e);
-        }
-        done();
-      })
     })
+
+    return model;
   })
-
-  // add the model to the models hash
-  if (typeof elasticgoose.models[index] === 'undefined') {
-    elasticgoose.models[index] = {};
-  }
-  elasticgoose.models[index][type] = model;
-
-  return model;
 }

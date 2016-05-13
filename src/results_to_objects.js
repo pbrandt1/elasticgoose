@@ -4,7 +4,7 @@ var _ = require('lodash')
 
 module.exports = function(results, definition) {
 
-  // elasticsearch returns dates as strings, i want dates
+  // elasticsearch returns dates as strings, i want javascript date objects
   // this gets a list of date props
   var date_props = obj_to_proplist(definition).filter(function(p) {
     return _.get(definition, p) === Date;
@@ -12,14 +12,14 @@ module.exports = function(results, definition) {
     return p.replace(/\.type$/, '')
   })
 
+  // um sometimes this function is called on an array, and sometimes just a single object
   if (_.get(results, 'hits.hits')) {
     var objects = results.hits.hits;
-    var isArray = true;
   } else {
-    objects = results;
+    objects = [results];
   }
 
-  objects = [].concat(objects).map(function(h) {
+  objects = objects.map(function(h) {
     // put the _id on the source object
     h._source._id = h._id;
 
@@ -32,8 +32,5 @@ module.exports = function(results, definition) {
     return h._source;
   })
 
-  if (!isArray) {
-    objects = objects[0];
-  }
   return objects;
 }

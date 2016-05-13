@@ -4,7 +4,7 @@
   "description": "",
   "main": "src/elasticgoose.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha test/example.js"
   },
   "author": "Peter Brandt <peter.m.brandt@gmail.com>",
   "license": "ISC",
@@ -13,5 +13,9 @@
     "elasticsearch": "^10.1.3",
     "lodash": "^4.6.1",
     "queue": "^3.1.0"
+  },
+  "devDependencies": {
+    "mocha": "^2.4.5",
+    "should": "^8.3.1"
   }
 }

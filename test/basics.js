@@ -1,11 +1,34 @@
 var elasticgoose = require('../src/elasticgoose')
+var should = require('should');
 
-elasticgoose.connect({
-  host: 'localhost:9200',
-  log: 'info',
-  apiVersion: '2.2'
+describe('elasticgoose client', function() {
+  it('should work for a correct configuration', function(done) {
+
+    co(function*() {
+      var db = yield elasticgoose.connect({
+        host: 'localhost:9200',
+        log: 'info',
+        apiVersion: '2.2'
+      });
+
+      db.connected.should.equal(true);
+    }).then(done, done)
+  });
+
+  it('should fail for incorrect configuration', function(done) {
+    co(function*() {
+      var db = yield elasticgoose.connect({
+        host: 'localhosasdfsdft:9200',
+        log: 'info',
+        apiVersion: '2.2'
+      });
+    }).then(done, e => {
+      done();
+    })
+  })
 })
 
+describe('map')
 var blips = elasticgoose.Model('elasticgoose', 'blip', require('./blip_mapping'))
 
 elasticgoose.worker_queue.concurrency = 1;
