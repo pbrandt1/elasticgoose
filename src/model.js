@@ -92,6 +92,10 @@ module.exports = function(index, type, definition) {
       definition: definition
     }),
 
+    raw: function() {
+      return Promise.resolve({})
+    },
+
     //
     // raw: function(q, cb) {
     //   var ctx = query(q, index, type);

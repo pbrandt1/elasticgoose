@@ -35,6 +35,7 @@ describe('a basic example', function() {
       // then you can also find it in the db
       var yay_post = yield posts.find({user: 'peter'}).exec();
       should.exist(yay_post);
+      console.log(yay_post);
 
     }).then(done, done);
   })
