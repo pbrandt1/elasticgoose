@@ -6,7 +6,7 @@ var query = require('./query')
 var insert = require('./insert')
 // var update = require('./update')
 var find = require('./find')
-
+var raw = require('./raw')
 
 // TODO read this stuff
 // https://www.elastic.co/blog/changing-mapping-with-zero-downtime
@@ -92,9 +92,25 @@ module.exports = function(index, type, definition) {
       definition: definition
     }),
 
-    raw: function() {
-      return Promise.resolve({})
-    },
+    //
+    // build the query body yourself
+    //
+    query: query.bind({
+      db: db,
+      index: index,
+      type: type,
+      definition: definition
+    }),
+
+    //
+    // make a full raw json request, specifying size etc yourself.
+    //
+    raw: raw.bind({
+      db: db,
+      index: index,
+      type: type,
+      definition: definition
+    }),
 
     //
     // raw: function(q, cb) {
@@ -112,7 +128,7 @@ module.exports = function(index, type, definition) {
   // aliases
   model.create = model.insert;
   model.remove = model.delete;
-  model.query = model.find;
+  model.query = model.query;
 
 
 

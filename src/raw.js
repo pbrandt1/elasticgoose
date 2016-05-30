@@ -9,9 +9,9 @@ var sort = require('./sort')
 module.exports = function(q) {
   var ctx = this;
 
-  debug('calling query on ' + ctx.index + '.' + ctx.type + ' on host ' + ctx.db.host + ' with query body ', q)
+  debug('calling raw on ' + ctx.index + '.' + ctx.type + ' on host ' + ctx.db.host + ' with body ', q)
 
-  ctx.body = {query: q};
+  ctx.body = q;
 
   ctx._functions = {
     exec: exec.bind(ctx),

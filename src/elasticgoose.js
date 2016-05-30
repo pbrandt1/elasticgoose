@@ -20,6 +20,7 @@ function createClient (options) {
       client: new elasticsearch.Client(options),
       models: {},
       Model: Model,
+      model: Model,
       host: options.host
     };
 

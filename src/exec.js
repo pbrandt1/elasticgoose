@@ -9,6 +9,7 @@ module.exports = function() {
   var ctx = this;
 
   debug('running exec on ' + ctx.index + '.' + ctx.type + ' on host ' + ctx.db.host)
+  debug(JSON.stringify(ctx.body, null, 2));
   return co(function*() {
     var results = yield ctx.db.client.search({
       index: ctx.index,

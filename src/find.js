@@ -11,9 +11,21 @@ module.exports = function(q) {
 
   debug('calling find on ' + ctx.index + '.' + ctx.type + ' on host ' + ctx.db.host + ' with query ', q)
 
+
+  var matches = Object.keys(q).reduce((matches, k) => {
+    if (q.hasOwnProperty(k)) {
+      var match = {};
+      match[k] = q[k];
+      matches.push({match: match});
+    }
+    return matches;
+  }, [])
+
   ctx.body = {
     query: {
-      match: q
+      bool: {
+        should: matches
+      }
     }
   };
 
