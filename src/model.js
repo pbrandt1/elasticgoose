@@ -1,7 +1,9 @@
 var co = require('co')
 var debug = require('debug')('elasticgoose')
+var _ = require('lodash')
 
 var definition_to_mapping = require('./definition_to_mapping')
+var obj_to_proplist = require('./obj_to_proplist')
 var query = require('./query')
 var insert = require('./insert')
 // var update = require('./update')
@@ -28,6 +30,15 @@ module.exports = function(index, type, definition) {
 
   debug('registering model ' + index + '.' + type + ' to client with host ' + db.host);
   debug('definition is ', definition);
+  debug('updating definition with default values');
+  obj_to_proplist(definition).map(prop => {
+    if (prop.match(/\.(default|type)$/)) return;
+    var val = _.get(definition, prop);
+    if (typeof val !== 'undefined' && ['String', 'Number', 'Boolean', 'Date'].indexOf(val.constructor.name) >= 0) {
+      _.set(definition, prop, {type: val.constructor, default: val})
+    }
+  })
+  debug('definition with default values is', definition);
   var mapping = definition_to_mapping(definition)
   debug('mapping is ', JSON.stringify(mapping, null, 2))
 
@@ -152,6 +163,7 @@ module.exports = function(index, type, definition) {
     }
 
     if (!index) {
+      debug('creating index', model.index);
       index = yield db.client.indices.create({ index: model.index })
     }
 

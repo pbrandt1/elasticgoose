@@ -18,9 +18,9 @@ module.exports = function(obj) {
       this._sourceInclude = _sourceInclude;
     }
   } else if (obj instanceof Array) {
-    throw new Error('not implemented')
+    throw new Error('select not implemented for Arrays')
   } else {
-    throw new Error('not implemented')
+    throw new Error('select not implemented for this object type')
   }
   return this._functions;
 }

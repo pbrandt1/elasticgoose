@@ -2,8 +2,11 @@ var debug = require('debug')('eg.util');
 
 var not_implemented = "Cannot handle this use case yet (tweet to @odsdq and we'll figure out how to do this the right way)";
 
+//
+//
+//
 var definition_to_mapping = module.exports = function(json, path) {
-  // path is a list of property names in nested order, mostly good for debugging
+  // path is a list of property names in deep nested order, mostly good for debugging
   path = path || [];
   if (path && path.length > 0) {
     debug('handling ' + path.join('.'))
@@ -33,9 +36,23 @@ var definition_to_mapping = module.exports = function(json, path) {
     return { type: 'string' }
   }
 
+  if (typeof json === 'string') {
+    return {
+      type: 'string',
+      null_value: json
+    }
+  }
+
   // Date
   if (json === Date) {
     return { type: 'date' }
+  }
+
+  if (json instanceof Date) {
+    return {
+      type: 'date',
+      null_value: json
+    }
   }
 
   // Number
@@ -43,9 +60,23 @@ var definition_to_mapping = module.exports = function(json, path) {
     return { type: 'float' }
   }
 
+  if (typeof json === 'number') {
+    return {
+      type: 'float',
+      null_value: json
+    }
+  }
+
   // Boolean
   if (json === Boolean) {
     return { type: 'boolean' }
+  }
+
+  if (typeof json === 'boolean') {
+    return {
+      type: 'boolean',
+      null_value: json
+    }
   }
 
   // Custom mapping
@@ -75,7 +106,13 @@ var definition_to_mapping = module.exports = function(json, path) {
   if (props.indexOf('type') >= 0 && !json.type.type) {
 
     debug('property definition object (like {type: String})')
+
     var definition = definition_to_mapping(json.type, path.concat(['type']));
+
+    if (typeof json.type === 'string') {
+      debug('detected custom mapping', json.type);
+      definition.type = json.type;
+    }
 
     if (props.indexOf('default') >= 0 && typeof json.default !== 'function') {
       definition.null_value = json.default;
@@ -107,6 +144,18 @@ var definition_to_mapping = module.exports = function(json, path) {
 
 
 if (!module.parent) {
-  var m = definition_to_mapping(require('./google_calendar_mapping'));
+  var m = definition_to_mapping({
+    str: String,
+    num: Number,
+    bool: Boolean,
+    date: Date,
+    strx: [String],
+    numx: [Number],
+    boolx: [Boolean],
+    datex: [Date],
+    obj: {
+      str: String
+    }
+  });
   console.log(m)
 }

@@ -1,6 +1,6 @@
 var _ = require('lodash')
 var co = require('co')
-var debug = require('debug')('eg.exec')
+var debug = require('debug')('elasticgoose')
 
 var obj_to_proplist = require('./obj_to_proplist')
 var results_to_objects = require('./results_to_objects')

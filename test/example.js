@@ -2,7 +2,7 @@ var elasticgoose = require('../src/elasticgoose');
 var co = require('co');
 var should = require('should');
 
-describe('a basic example', function() {
+describe.skip('a basic example', function() {
   it('should totally work like in like the most simple cases', function(done) {
     co(function*() {
 
@@ -33,10 +33,11 @@ describe('a basic example', function() {
       should.exist(inserted_post.posted);
 
       // then you can also find it in the db
-      var yay_post = yield posts.find({user: 'peter', message: 'help me', posted: inserted_post.posted}).exec();
+      var yay_post = yield posts.find({user: 'petnpm er', message: 'help me', posted: inserted_post.posted}).exec();
       should.exist(yay_post);
       console.log(yay_post);
 
+      // you can copy/paste anything from teh internet here
       var raw = yield posts.query({
         "multi_match": {
             "query":                "peter help",
@@ -45,7 +46,7 @@ describe('a basic example', function() {
             "tie_breaker":          0.3,
             "minimum_should_match": "30%"
         }
-    }).exec();
+      }).exec();
       should.exist(raw);
       console.log(raw);
 

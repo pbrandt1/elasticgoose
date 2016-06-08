@@ -4,7 +4,7 @@
   "description": "",
   "main": "src/elasticgoose.js",
   "scripts": {
-    "test": "mocha test/example.js"
+    "test": "mocha test"
   },
   "author": "Peter Brandt <peter.m.brandt@gmail.com>",
   "license": "ISC",

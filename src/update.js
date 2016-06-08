@@ -2,10 +2,12 @@ var co = require('co');
 
 var object_to_document = require('./object_to_document');
 
-function update(obj) {
+function update(query, obj) {
   var ctx = this;
   debug('updating doc for ' + ctx.index + '.' + ctx.type + ' on host ' + ctx.db.host);
-  debug('specified object was', obj)
+  debug('sepcified query was', query);
+  debug('specified object was', obj);
+  if (obj.)
   var doc = object_to_document(obj, ctx.definition);
   debug('doc to update is', doc);
 

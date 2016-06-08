@@ -1,4 +1,4 @@
-var debug = require('debug')('eg.util')
+var debug = require('debug')('elasticgoose')
 var obj_to_proplist = require('./obj_to_proplist')
 var _ = require('lodash')
 
