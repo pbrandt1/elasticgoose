@@ -2,8 +2,6 @@ var elasticgoose = require('../src/elasticgoose');
 var co = require('co');
 var should = require('should');
 
-
-
 describe('mappings', function() {
   beforeEach(function(done) {
     co(function*() {
@@ -11,6 +9,38 @@ describe('mappings', function() {
       var q = yield db.client.indices.delete({ index: '_all' });
     }).then(done, done)
   });
+
+  // it('should allow alllll the types', function(don) {
+  //   co(function*() {
+  //     var db = yield elasticgoose.createClient();
+  //     var model = yield db.Model('elasticgoose', 'all_the_things', {
+  //       str: String,
+  //       num: Number,
+  //       bool: Boolean,
+  //       date: Date,
+  //       obj: {
+  //         s: String,
+  //         n: Number,
+  //         o: {
+  //           s: String
+  //         }
+  //       },
+  //
+  //       xstr: [String],
+  //       xnum: [Number],
+  //       xbool: [Boolean],
+  //       xdate: [Date],
+  //       xobj: [{
+  //         s: String,
+  //         n: Number,
+  //         o: {
+  //           s: String
+  //         }
+  //       }],
+  //
+  //     })
+  //   })
+  // })
 
   it('should allow you to use simple javascript types', function(done) {
     co(function*() {

@@ -39,12 +39,12 @@ describe.skip('a basic example', function() {
 
       // you can copy/paste anything from teh internet here
       var raw = yield posts.query({
-        "multi_match": {
-            "query":                "peter help",
-            "type":                 "best_fields",
-            "fields":               [ "user", "message" ],
-            "tie_breaker":          0.3,
-            "minimum_should_match": "30%"
+        multi_match: {
+          query: "pretty and smart",
+          type: "best_fields",
+          fields: [ "user", "message" ],
+          tie_breaker: 0.3,
+          minimum_should_match: "30%"
         }
       }).exec();
       should.exist(raw);

@@ -1,46 +1,62 @@
 # Elasticgoose
 
-It's like mongoose, but for elasticsearch.
-
-(not published to npm yet)
+It provides mongoose-like schema definitions and a simple query api.
 
 # Usage
 
 ```javascript
-var elasticgoose = require('../src/elasticgoose');
+var elasticgoose = require('elasticgoose');
 
-elasticgoose.connect({
-  host: 'localhost:9200',
-  log: 'info',
-  apiVersion: '2.2'
-});
+// create connection
+var db = yield elasticgoose.createClient();
 
-var posts = elasticgoose.Model('test_index', 'post_type', {
+// create indices and types
+var posts = yield db.Model('example_index', 'post_type', {
   user: String,
   message: String,
   posted: {
     type: Date,
     default: Date.now
   }
-})
+});
 
-posts.insert({
+// insert documents and the default values will be populated
+var new_post = yield posts.insert({
   user: 'peter',
-  message: 'help me'
-}, function(e, r) {
-  console.log(r); // ur doc, with the default value all filled in
-})
+  message: 'tbh u r pretty and smart'
+});
 
-posts.find({user: 'peter'})
+// use a simple .find() api
+var results = yield posts.find({user: 'peter'})
   .sort('posted')
   .skip(1)
   .limit(5)
   .select('user posted')
-  .exec(function(e, r) {
-    console.log(r);
-  })
+  .exec();
 
+// or use a custom elasticsearch query
+var custom_results = yield posts.query({
+  multi_match: {
+    query: "pretty and smart",
+    type: "best_fields",
+    fields: [ "user", "message" ],
+    tie_breaker: 0.3,
+    minimum_should_match: "30%"
+  }
+}).exec();
 ```
+
+# Documentation
+
+#### elasticsearch.createClient([options])
+```js
+elasticsearch.createClient({
+  host: 'some.host:9200', // default is localhost:9200
+  log: 'error', // one of (error, warning, info, debug, trace), default is 'info'
+  apiVersion: '2.2', // elasticsearch api version, default is '2.2'
+})
+```
+
 
 # Learning about Elasticsearch
 
@@ -61,24 +77,7 @@ A couple things to keep in mind when defining your models
 Elasticsearch doesn't make inserted data available immediately because
 [fsyncs are too slow](https://www.elastic.co/guide/en/elasticsearch/guide/current/near-real-time.html).  Usually that's nbd, but sometimes not.  If you need to make sure all data
 is available right now, you can use `db.client.indices.refresh()`.  I use it in
-the following way in my mocha tests.
-
-```js
-var db = yield elasticgoose.createClient();
-// do stuff like insert a document
-// ...
-// call refresh
-yield db.client.indicies.refresh();
-// now i can immediately search for a document i just inserted
-var results = yield model.find({...})
-```
-
-# TODO
-
-* update
-* insert array of documents
-* analyzers in mapping definition
-* github.io page
+the elasticgoose mocha tests.
 
 ### ISC License
 
