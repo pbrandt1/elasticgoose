@@ -2,7 +2,7 @@ var elasticgoose = require('../src/elasticgoose');
 var co = require('co');
 var should = require('should');
 
-describe.skip('a basic example', function() {
+describe('a basic example', function() {
   it('should totally work like in like the most simple cases', function(done) {
     co(function*() {
 

@@ -164,7 +164,15 @@ module.exports = function(index, type, definition) {
 
     if (!index) {
       debug('creating index', model.index);
-      index = yield db.client.indices.create({ index: model.index })
+      try {
+        index = yield db.client.indices.create({ index: model.index })
+      } catch (e) {
+        if (_.get(e, 'body.error.type') === 'index_already_exists_exception') {
+          debug('index already exists, moving on');
+        } else {
+          throw e;
+        }
+      }
     }
 
     debug('updating mapping for ' + model.index + '.' + model.type)
